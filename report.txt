@@ -1,0 +1,91 @@
+Utility functions
+
+We have some functions in our Util namespace :
+
+charToBinaryString, converts a character to its binary representation, in string format.
+
+toBinaryString, converts a string to its binary representation, and returns a pointer to the resulting string.
+print, which takes a string pointer and a filename, it prints the string in the file.
+
+digitToBinaryString, takes a digit ( 0 <= int <= 7) and returns its 3 bit binary representation in a string.
+
+fix, takes a binary string pointer (consists of only ‘0’s and ‘1’s), and converts each 8 bits to their corresponding unsigned char,
+adds these chars to a string and returns a pointer to it.
+ 
+checkEqualFiles, which takes string pointers that point to both the strings in the files, returns 1 if the files have similar content, otherwise 0.
+
+There is also a function that returns a string pointer to the text in file, after taking the file name; getFile
+
+----------------------------------------------------------------------------------------------------------------------------------------
+Node Class
+
+We created a node class, Each node has 
+	A character (its needed only if its a leaf).
+	A value (holds the total weight of its subtree)
+	A left child.
+	A right child.
+
+HuffmanEncoding Class
+
+The class has a constructor which takes a string pointer, which points to the text to be compressed.
+Example  :  HuffmanEncoding huffman(getFile(“input.txt”));
+For abstraction, the user only has to call huffman.compress();
+
+compress : takes only a string pointer to the filename, of the file to compress into, It calls :
+
+	encode : which is a void function that calls :
+
+	initialize, which loops over the input string, fills the frequency array in order to know the frequency of occurence to all characters,
+	and then converts each entry in the frequency table into a node and pushes it into the priority queue.
+
+	buildtree, which loops until the priority queue has only 1 node, connecting the top 2 (least value) nodes each time 
+	and pushing them again into the priority queue.
+
+	dfs, which takes the root node of the tree, traverses the tree with a temporary string indicating the path taken,
+	whenever a leaf node is found, the code of that node is saved into the map “code”.
+
+	getEncodedString, which loops over the input string, and replaces every character with its code and returns a pointer to the new string.
+
+	printTree, which traverses the tree, and encodes it into a string, a pointer to that string is returned. It traverses in the following manner 
+	from node U: if U is a leaf, print 1 and the the ascii value of its character, else it prints 0, traverses to its left child and then right child.
+
+	getCompressedText, it changes the binary strings of the tree compressed representation and the file compressed representation and appends them, 
+	adds 3-bit prefix which will show how many extra bits were added at the end of the compressed string ( 0 to 7 ) in order to make that whole 
+	string’s length a multiple of 8, and thus representable by unsigned chars (bytes). It returns the compressed text.
+
+	Util::print, which takes that compressed string and the filename, and prints the compressed text into the file.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+HuffmanDecoding Class
+
+The class has a constructor which takes a string pointer, which points to the text to be uncompressed.
+Example  :  HuffmanDecoding huffman(getFile(“input.txt”));
+For abstraction, the user only has to call huffman.decode();
+
+decode : takes only a string pointer to the filename, of the file to uncompress into, It calls :
+
+	Util::toBinaryString, to convert the read “compressed” string to a binary string.
+
+	removeExtraPadding, which reads the first 3 bytes, that mention how many extra bits (padding) are added to the end, and the pops them 
+	off the back of the string, so now, the binary string’s first 3 characters are useless and it has no extra characters in the end.
+
+	createHuffmanTree, which takes the binary compressed string and an index to where to read next (starts with 4 as first 3 are already unnecessary). 
+	It recursively and inversely to the method in the HuffmanEncoding class that generates a compressed version of the tree, in order to recreate the tree.
+
+	revertAndPrint, takes the binary string, and the index where the original file text starts ( since there are 3 extra bits + some bits for the tree 
+	representation ), it also takes the file where the uncompressed file must be written into. This function traverses the tree while iterating over 
+	the binary string, whenever a leaf node is visited, its corresponding character is printed to the file.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+-We have also created a function generateRandomFile for stress testing, it takes the file name, the number of characters to randomly generated in that file, 
+and the number of different characters that will be generated in the file (atmost).
+
+-Since we access files as binary files, our program can also compress and uncompress all file formats such as:
+ 
+  -Text files
+  -Pdf files
+  -Images
+  -Music
+  -Movies
+
